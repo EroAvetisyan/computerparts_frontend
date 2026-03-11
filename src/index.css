@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #1a1a1a;
+  --color-bg-tertiary: #2a2a2a;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a0a0a0;
+
+  --color-accent-blue: #00f3ff;
+  --color-accent-purple: #bc13fe;
+  --color-accent-green: #00ff9d;
+
+  --color-glass-bg: rgba(26, 26, 26, 0.8);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+
+  --font-main: "Inter", "system-ui", "sans-serif";
+
+  --shadow-neon-blue: 0 0 20px rgba(0, 243, 255, 0.3);
+  --shadow-neon-purple: 0 0 25px rgba(188, 19, 254, 0.6);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+}
+
+
+@layer base {
+  body {
+    @apply bg-bg-primary text-text-primary font-main antialiased leading-relaxed;
+  }
+
+  /* Check if this is needed or if Tailwind reset covers it well enough */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-bg-primary;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-bg-tertiary rounded;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-text-secondary;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-br from-accent-blue to-accent-purple bg-clip-text text-transparent;
+  }
+
+  .glass-panel {
+    @apply bg-glass-bg backdrop-blur-md border border-glass-border;
+  }
+
+  .neon-glow {
+    @apply shadow-neon-blue;
+  }
+}
