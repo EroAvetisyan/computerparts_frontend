@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Heart } from 'lucide-react';
 import Button from './Button';
 import { useCart } from '../../context/CartContext';
 import toast from 'react-hot-toast';
@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 
 const ProductCard = ({ product }) => {
-    const { addToCart } = useCart();
+    const { addToCart, isInWishlist, toggleWishlist } = useCart();
 
     const handleAddToCart = (e) => {
         e.preventDefault(); // Prevent navigation when clicking 'Add'
@@ -29,8 +29,42 @@ const ProductCard = ({ product }) => {
     return (
         <Link
             to={`/product/${product.id}`}
-            className="rounded-xl overflow-hidden flex flex-col transition-colors duration-300 glass-panel hover:border-accent-blue group block"
+            className="relative rounded-xl overflow-hidden flex flex-col transition-colors duration-300 glass-panel hover:border-accent-blue group block"
         >
+            <button
+                onClick={(e) => {
+                    e.preventDefault();
+                    const isWishlisted = isInWishlist(product.id);
+                    toggleWishlist(product);
+                    toast.success(
+                        isWishlisted
+                            ? `Removed ${product.name} from wishlist`
+                            : `Added ${product.name} to wishlist`,
+                        {
+                            style: {
+                                background: '#1a1a2e',
+                                color: '#fff',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                            },
+                            iconTheme: {
+                                primary: '#bc13fe',
+                                secondary: '#fff',
+                            },
+                        }
+                    );
+                }}
+                className="absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-full text-white hover:bg-white/10 transition"
+                aria-label="Add to wishlist"
+            >
+                <Heart
+                    size={18}
+                    stroke={isInWishlist(product.id) ? 'currentColor' : 'currentColor'}
+                    fill={isInWishlist(product.id) ? 'currentColor' : 'none'}
+                    className={isInWishlist(product.id)
+                        ? 'text-accent-purple fill-accent-purple stroke-gradient300'
+                        : 'text-white'}
+                />
+            </button>
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}

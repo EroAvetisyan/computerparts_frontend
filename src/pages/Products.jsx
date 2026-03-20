@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import ProductCard from '../components/ui/ProductCard';
@@ -9,8 +10,13 @@ import { useMediaQuery } from '../hooks/useMediaQuery';
 const INITIAL_VISIBLE_MOBILE = 6;
 
 const Products = () => {
+    const location = useLocation();
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [selectedCategories, setSelectedCategories] = useState(() => {
+        const params = new URLSearchParams(location.search);
+        const category = params.get('category');
+        return category && categories.includes(category) ? [category] : [];
+    });
     const [sortBy, setSortBy] = useState('name-asc');
     const [showFilters, setShowFilters] = useState(true);
     const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_MOBILE);
@@ -56,6 +62,16 @@ const Products = () => {
         return result;
     }, [searchTerm, selectedCategories, sortBy]);
 
+    // Sync category param from URL when location changes
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const category = params.get('category');
+
+        if (category && categories.includes(category)) {
+            setSelectedCategories([category]);
+        }
+    }, [location.search]);
+
     // Reset visible count when filters/search/sort change (narrow screen)
     useEffect(() => {
         setVisibleCount(INITIAL_VISIBLE_MOBILE);
@@ -96,13 +112,13 @@ const Products = () => {
                             placeholder="Search products..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-bg-secondary border border-white/10 rounded-lg pl-12 pr-4 py-3 text-white placeholder:text-text-secondary focus:border-accent-blue focus:outline-none transition-colors"
+                            className="w-full bg-bg-secondary border border-white/10 rounded-lg pl-12 pr-4 py-3 text-gradient-300 placeholder:text-text-secondary focus:border-accent-blue focus:outline-none transition-colors"
                         />
                     </div>
                     <select
                         value={sortBy}
                         onChange={(e) => setSortBy(e.target.value)}
-                        className="bg-bg-secondary border border-white/10 rounded-lg px-4 py-3 text-white focus:border-accent-blue focus:outline-none transition-colors cursor-pointer"
+                        className="bg-bg-secondary border border-white/10 rounded-lg px-4 py-3 text-gradient-200 focus:border-accent-blue focus:outline-none transition-colors cursor-pointer"
                     >
                         <option value="name-asc">Name: A-Z</option>
                         <option value="name-desc">Name: Z-A</option>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useParams, Link } from "react-router-dom";
-import { products } from "../data/products";
+import { products } from "../data/products"; // ✅ FIX: products is now defined
 import { useCart } from "../context/CartContext";
-import { ShoppingCart, Star, Share2, Heart, Check, Truck, Shield } from 'lucide-react';
+import { ShoppingCart, Star, Heart, Check, Truck, Shield } from 'lucide-react';
 import Button from '../components/ui/Button';
 import ProductCard from '../components/ui/ProductCard';
 import toast from 'react-hot-toast';
@@ -10,7 +10,14 @@ import { motion } from 'framer-motion';
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const { addToCart } = useCart();
+
+  const {
+    addToCart,
+    toggleWishlist,
+    isInWishlist,
+    setIsWishlistOpen, // ✅ open wishlist drawer to confirm
+  } = useCart();
+
   const [quantity, setQuantity] = useState(1);
 
   // Find the product
@@ -26,27 +33,14 @@ const ProductDetail = () => {
     );
   }
 
+  const liked = isInWishlist(product.id);
+
   // Related products (same category, excluding current)
   const relatedProducts = products
     .filter(p => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
   const handleAddToCart = () => {
-    // Add item multiple times based on quantity
-    // Note: Better CartContext implementation would handle quantity directly in addToCart
-    // For now, we will just call it once and user can adjust in cart, OR we loop. 
-    // Let's loop to match current simple context logic or just add one.
-    // Actually, let's assume standard addToCart adds 1. 
-    // We can just call it `quantity` times or improved context later. 
-    // For now, let's just add one batch.
-    // *Correction*: CartContext `addToCart` logic in `CartContext.jsx` checks existing and increments.
-    // So calling it `quantity` times works, but is inefficient. 
-    // Ideally we update `addToCart` to accept quantity. 
-    // Let's do a simple loop for now to be safe with current context, 
-    // or just add 1 and tell user to update in cart.
-    // BETTER UX: Update Context to accept quantity.
-    // But to stick to plan, I will just add 1 for now and the quantity selector is visual/future proofing
-    // OR better: Loop.
     for (let i = 0; i < quantity; i++) {
       addToCart(product);
     }
@@ -64,6 +58,30 @@ const ProductDetail = () => {
     });
   };
 
+  const handleToggleWishlist = () => {
+    toggleWishlist(product);
+
+    toast.success(
+      liked
+        ? `Removed ${product.name} from wishlist`
+        : `Added ${product.name} to wishlist`,
+      {
+        style: {
+          background: '#1a1a2e',
+          color: '#fff',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+        },
+        iconTheme: {
+          primary: '#bc13fe',
+          secondary: '#fff',
+        },
+      }
+    );
+
+    // Optional: open wishlist drawer so you SEE it worked
+    setIsWishlistOpen(true);
+  };
+
   return (
     <div className="pb-20 pt-24">
       <div className="container mx-auto px-5">
@@ -71,7 +89,7 @@ const ProductDetail = () => {
         <div className="text-sm text-text-secondary mb-8 flex items-center gap-2">
           <Link to="/" className="hover:text-accent-blue transition-colors">Home</Link>
           <span>/</span>
-          <span className="text-white">{product.category}</span>
+          <span className="text-black">{product.category}</span>
           <span>/</span>
           <span className="text-text-primary font-medium">{product.name}</span>
         </div>
@@ -85,7 +103,7 @@ const ProductDetail = () => {
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(50,50,80,0.5)_0%,transparent_70%)] opacity-50"></div>
             <img
-              src={`/${product.image}`} // Ensure path is correct (relative to public)
+              src={`/${product.image}`}
               alt={product.name}
               className="w-full max-w-md object-contain z-10 transition-transform duration-500 group-hover:scale-105"
             />
@@ -109,13 +127,27 @@ const ProductDetail = () => {
                     <Star fill="currentColor" size={16} />
                     <span className="text-text-secondary ml-1">(128 reviews)</span>
                   </div>
+
                   <span className="text-green-400 flex items-center gap-1">
                     <Check size={14} /> In Stock
                   </span>
                 </div>
               </div>
-              <button className="text-text-secondary hover:text-red-500 transition-colors">
-                <Heart size={24} />
+
+              {/* ✅ Wishlist button (working + shows liked state) */}
+              <button
+                onClick={handleToggleWishlist}
+                className="text-text-secondary hover:text-red-500 transition-colors"
+                aria-label="Toggle wishlist"
+              >
+                <Heart
+                  size={24}
+                  className={
+                    liked
+                      ? "text-accent-purple fill-accent-purple stroke-gradient300"
+                      : "text-text-secondary"
+                  }
+                />
               </button>
             </div>
 
@@ -133,13 +165,20 @@ const ProductDetail = () => {
                 <button
                   className="px-4 py-3 hover:bg-white/10 transition-colors"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                >-</button>
+                >
+                  -
+                </button>
+
                 <span className="w-12 text-center font-medium">{quantity}</span>
+
                 <button
                   className="px-4 py-3 hover:bg-white/10 transition-colors"
                   onClick={() => setQuantity(quantity + 1)}
-                >+</button>
+                >
+                  +
+                </button>
               </div>
+
               <Button className="flex-1" onClick={handleAddToCart}>
                 <ShoppingCart size={20} /> Add to Cart
               </Button>

@@ -45,19 +45,96 @@ const toastStyle = {
     },
 };
 
+const BUILD_TYPES = [
+    'Custom PC',
+    'Gaming PC',
+    'For Working',
+    'Editing PC',
+    'Budget PC',
+    'High-End PC',
+];
+
+const PRESET_BUILD_SELECTIONS = {
+    'Custom PC': {
+            CPU: null,
+            Motherboard: null,
+            RAM: null,
+            Storage: null,
+            GPU: null,
+            PSU: null,
+            Cases: null,
+            Cooling: null,
+    },
+    'Gaming PC': {
+        CPU: 2,
+        Motherboard: 5,
+        RAM: 4,
+        Storage: 3,
+        GPU: 1,
+        PSU: 6,
+        Cases: 20,
+        Cooling: 22,
+    },
+    'For Working': {
+        CPU: 8,
+        Motherboard: 11,
+        RAM: 10,
+        Storage: 3,
+        GPU: 7,
+        PSU: 12,
+        Cases: 20,
+        Cooling: 21,
+    },
+    'Editing PC': {
+        CPU: 24,
+        Motherboard: 17,
+        RAM: 10,
+        Storage: 9,
+        GPU: 23,
+        PSU: 12,
+        Cases: 20,
+        Cooling: 22,
+    },
+    'Budget PC': {
+        CPU: 14,
+        Motherboard: 17,
+        RAM: 16,
+        Storage: 15,
+        GPU: 13,
+        PSU: 18,
+        Cases: 19,
+        Cooling: 21,
+    },
+    'High-End PC': {
+        CPU: 2,
+        Motherboard: 5,
+        RAM: 10,
+        Storage: 3,
+        GPU: 1,
+        PSU: 6,
+        Cases: 20,
+        Cooling: 22,
+    },
+};
+
 const Builds = () => {
     const { addToCart, setIsCartOpen } = useCart();
+    const [selectedBuildType, setSelectedBuildType] = useState('Custom PC');
+
+    const buildPresetToSelections = (type) => {
+        const preset = PRESET_BUILD_SELECTIONS[type] || {};
+        return Object.fromEntries(
+            BUILDER_CATEGORIES.map((category) => {
+                const productId = preset[category];
+                const product = products.find((p) => p.id === productId) || null;
+                return [category, product];
+            })
+        );
+    };
+
+    const [selections, setSelections] = useState(buildPresetToSelections('Custom PC'));
 
     /**
-     * ստե կոմպոնենտների սբոռկենա
-     * key ը - կատեգորիայի անուննա (CPU, GPU), արժեքը - օբեյեկտ products ից
-     * կամ null ա որտև ոչմիբան ընտրած չի
-     * որ կտտցնում ես թարմացվումա մեկան համապատասխան կատեգորիան
-     */
-    const [selections, setSelections] = useState(initialSelections);
-
-    /**
-     * ապրանքները կատեգորիաներով են բաժանված
      * ստեղծվումա մի անգամ մանոտիռվնիի վախտ; BUILDER_CATEGORIES ից ամեն կատեգորիայի համար
      * պահպանվումա products ից ապրանքների զանգվածում ամեն մեկը իրա կատեգորիայի տակ.
      */
@@ -127,6 +204,34 @@ const Builds = () => {
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-8">
+                    <aside className="lg:w-72 flex-shrink-0">
+                        <div className="glass-panel rounded-xl p-6 sticky top-24">
+                            <div className="mb-4">
+                                <h3 className="text-xl font-bold">Build Type</h3>
+                                <p className="text-text-secondary text-sm">Choose a preset style</p>
+                            </div>
+                            <div className="space-y-2">
+                                {BUILD_TYPES.map((type) => (
+                                    <button
+                                        key={type}
+                                        type="button"
+                                        onClick={() => {
+                                            setSelectedBuildType(type);
+                                            setSelections(buildPresetToSelections(type));
+                                        }}
+                                        className={`w-full text-left px-3 py-2 rounded-lg border transition-colors ${
+                                            selectedBuildType === type
+                                                ? 'bg-accent-purple/20 border-accent-purple text-accent-purple'
+                                                : 'bg-white/5 border-white/10 text-text-secondary hover:bg-white/10 hover:text-text-primary'
+                                        }`}
+                                    >
+                                        {type}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </aside>
+
                     <div className="flex-1 space-y-6">
                         {BUILDER_CATEGORIES.map((category) => {
                             const items = productsByCategory[category] || [];
@@ -136,23 +241,23 @@ const Builds = () => {
                                     key={category}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="glass-panel rounded-xl p-6"
+                                    className="glass-panel rounded-2xl p-8"
                                 >
-                                    <div className="flex items-center justify-between mb-4">
-                                        <h2 className="text-xl font-bold">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h2 className="text-2xl font-bold">
                                             {category}
                                         </h2>
                                         {selected && (
                                             <button
                                                 type="button"
                                                 onClick={() => clearSelection(category)}
-                                                className="text-sm text-text-secondary hover:text-accent-blue transition-colors flex items-center gap-1"
+                                                className="text-base text-text-secondary hover:text-accent-blue transition-colors flex items-center gap-2"
                                             >
                                                 <X size={14} /> Clear
                                             </button>
                                         )}
                                     </div>
-                                    <div className="flex flex-wrap gap-2">
+                                    <div className="flex flex-wrap gap-3">
                                         {items.map((product) => {
                                             const isSelected =
                                                 selected?.id === product.id;
@@ -166,24 +271,24 @@ const Builds = () => {
                                                             product
                                                         )
                                                     }
-                                                    className={`text-left flex items-center gap-3 px-4 py-3 rounded-lg border transition-all duration-200 ${
+                                                    className={`text-left flex items-center gap-4 px-6 py-4 rounded-xl border transition-all duration-200 ${
                                                         isSelected
-                                                            ? 'border-accent-blue bg-accent-blue/10 text-white'
+                                                            ? 'border-accent-blue bg-accent-blue/10 dark:text-white text-text-primary'
                                                             : 'border-white/10 bg-white/5 hover:border-white/20 text-text-secondary hover:text-text-primary'
                                                     }`}
                                                 >
-                                                    <div className="w-12 h-12 flex-shrink-0 rounded-md bg-bg-secondary overflow-hidden flex items-center justify-center">
+                                                    <div className="w-14 h-14 flex-shrink-0 rounded-lg bg-bg-secondary overflow-hidden flex items-center justify-center">
                                                         <img
                                                             src={`/${product.image}`}
                                                             alt={product.name}
-                                                            className="max-w-full max-h-full object-contain"
+                                                            className="max-w-[80%] max-h-[80%] object-contain"
                                                         />
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <span className="block font-medium text-sm truncate max-w-[180px]">
+                                                        <span className="block font-medium text-base truncate max-w-[220px]">
                                                             {product.name}
                                                         </span>
-                                                        <span className="text-gradient font-semibold">
+                                                        <span className="text-gradient font-semibold text-base">
                                                             ${product.price}
                                                         </span>
                                                     </div>

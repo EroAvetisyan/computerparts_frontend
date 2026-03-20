@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Zap, Shield, Truck, Cpu } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import HeroSlider from '../components/home/HeroSlider';
 import ProductCard from '../components/ui/ProductCard';
 import Button from '../components/ui/Button';
@@ -58,13 +59,18 @@ const Home = () => {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-5">
                         {categories.map((cat, index) => (
-                            <motion.div
+                            <Link
                                 key={index}
-                                className="p-8 rounded-xl text-center cursor-pointer transition-all duration-300 flex items-center justify-center glass-panel hover:border-accent-blue"
-                                whileHover={{ y: -5 }}
+                                to={`/products?category=${encodeURIComponent(cat)}`}
+                                className="p-8 rounded-xl text-center transition-all duration-300 flex items-center justify-center glass-panel hover:border-accent-blue"
                             >
-                                <h3 className="text-lg font-semibold">{cat}</h3>
-                            </motion.div>
+                                <motion.div
+                                    className="w-full"
+                                    whileHover={{ y: -5 }}
+                                >
+                                    <h3 className="text-lg font-semibold">{cat}</h3>
+                                </motion.div>
+                            </Link>
                         ))}
                     </div>
                 </div>

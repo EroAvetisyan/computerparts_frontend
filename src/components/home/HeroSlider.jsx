@@ -65,8 +65,8 @@ const HeroSlider = () => {
                                     transition={{ duration: 0.8 }}
                                 >
                                     <h2 className="text-xl md:text-2xl font-semibold uppercase tracking-[2px]" style={{ color: slide.accent }}>{slide.subtitle}</h2>
-                                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] bg-gradient-to-r from-white to-[#aaa] bg-clip-text text-transparent">{slide.title}</h1>
-                                    <p className="text-lg text-text-secondary max-w-[500px]">{slide.description}</p>
+                                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] bg-gradient-to-r from-[var(--color-text-primary)] to-[var(--color-text-secondary)] dark:from-white dark:to-[#aaa] bg-clip-text text-transparent">{slide.title}</h1>
+                                    <p className="text-lg text-text-secondary dark:text-text-secondary max-w-[500px]">{slide.description}</p>
                                     <Link to={`/product/${slide.productId}`}>
                                         <Button variant="primary" size="lg" className="mt-4">
                                             Shop Now <ArrowRight size={20} />
